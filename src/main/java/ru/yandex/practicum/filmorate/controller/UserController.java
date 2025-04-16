@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -52,15 +53,26 @@ public class UserController {
         if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
 
-            oldUser.setEmail(newUser.getEmail());
-            oldUser.setLogin(newUser.getLogin());
-            oldUser.setName(newUser.getName());
-            oldUser.setBirthday(newUser.getBirthday());
+            if (newUser.getEmail() != null && !newUser.getEmail().equals(oldUser.getEmail())) {
+                oldUser.setEmail(newUser.getEmail());
+            }
+
+            if (newUser.getLogin() != null && !newUser.getLogin().equals(oldUser.getLogin())) {
+                oldUser.setLogin(newUser.getLogin());
+            }
+
+            if (newUser.getName() != null && !newUser.getName().equals(oldUser.getName())) {
+                oldUser.setName(newUser.getName());
+            }
+
+            if (newUser.getBirthday() != null && !newUser.getBirthday().equals(oldUser.getBirthday())) {
+                oldUser.setBirthday(newUser.getBirthday());
+            }
 
             return oldUser;
         }
 
-        throw new NegativeArraySizeException("Пользователь с id = " + newUser.getId() + " не найден");
+        throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
     }
 
     @GetMapping

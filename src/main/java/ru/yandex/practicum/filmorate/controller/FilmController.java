@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -55,15 +56,26 @@ public class FilmController {
         if (films.containsKey(newFilm.getId())) {
             Film oldFilm = films.get(newFilm.getId());
 
-            oldFilm.setName(newFilm.getName());
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            oldFilm.setDuration(newFilm.getDuration());
+            if (newFilm.getName() != null && !newFilm.getName().equals(oldFilm.getName())) {
+                oldFilm.setName(newFilm.getName());
+            }
+
+            if (newFilm.getDescription() != null && !newFilm.getDescription().equals(oldFilm.getDescription())) {
+                oldFilm.setDescription(newFilm.getDescription());
+            }
+
+            if (newFilm.getReleaseDate() != null && !newFilm.getReleaseDate().equals(oldFilm.getReleaseDate())) {
+                oldFilm.setReleaseDate(newFilm.getReleaseDate());
+            }
+
+            if (newFilm.getDuration() != null && !newFilm.getDuration().equals(oldFilm.getDuration())) {
+                oldFilm.setDuration(newFilm.getDuration());
+            }
 
             return oldFilm;
         }
 
-        throw new NegativeArraySizeException("Фильм с id = " + newFilm.getId() + " не найден");
+        throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
     }
 
     @GetMapping
