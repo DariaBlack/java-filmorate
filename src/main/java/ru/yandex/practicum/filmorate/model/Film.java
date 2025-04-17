@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class Film {
     private Long id;
 
-    @NotBeforeReleaseDate
+    @NotBeforeReleaseDate("1895-12-28")
     private LocalDate releaseDate;
 
     @NotEmpty(message = "Название не должно быть пустым")

@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
@@ -31,7 +31,7 @@ public class UserController {
 
         if (!users.containsKey(user.getId())) {
             log.error("Попытка обновления несуществующего пользователя с id = {}", user.getId());
-            throw new UserNotFoundException("Пользователь с id = " + user.getId() + " не найден");
+            throw new ValidationException("Пользователь с id = " + user.getId() + " не найден");
         }
 
         setName(user);

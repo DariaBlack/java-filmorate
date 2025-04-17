@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
 import ru.yandex.practicum.filmorate.validator.ValidatorNotBeforeReleaseDate;
 
+import java.lang.annotation.Annotation;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,11 +15,39 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ValidationTest {
     private User user;
     private Film film;
+    private ValidatorNotBeforeReleaseDate releaseDateValidator;
 
     @BeforeEach
     public void setUp() {
-        user = new User(null, null, "email@example.ru", "login", LocalDate.of(1997,3, 10));
+        user = new User(null, null, "email@example.ru", "login", LocalDate.of(1997, 3, 10));
         film = new Film(null, LocalDate.of(2017, 9, 14), "name of film", "description of film", 120);
+        releaseDateValidator = new ValidatorNotBeforeReleaseDate();
+        releaseDateValidator.initialize(new NotBeforeReleaseDate() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public Class<? extends jakarta.validation.Payload>[] payload() {
+                return new Class[0];
+            }
+
+            @Override
+            public Class<?>[] groups() {
+                return new Class[0];
+            }
+
+            @Override
+            public String message() {
+                return "Дата релиза не может быть раньше 28 декабря 1895 года";
+            }
+
+            @Override
+            public String value() {
+                return "1895-12-28";
+            }
+        });
     }
 
     @Test
@@ -40,9 +70,9 @@ public class ValidationTest {
         });
     }
 
-    @Test void testValidFilm() {
-        ValidatorNotBeforeReleaseDate validator = new ValidatorNotBeforeReleaseDate();
-        assertTrue(validator.isValid(film.getReleaseDate(), null), "Дата релиза не может быть раньше 28 декабря 1895 года");
+    @Test
+    void testValidFilm() {
+        assertTrue(releaseDateValidator.isValid(film.getReleaseDate(), null), "Дата релиза не может быть раньше 28 декабря 1895 года");
         assertFalse(film.getName().isEmpty(), "Название фильма не должно быть пустым");
         assertTrue(film.getDescription().length() <= 200, "Описание фильма не должно превышать 200 символов");
         assertTrue(film.getDuration() > 0, "Длительность фильма должна быть положительной");
@@ -52,12 +82,11 @@ public class ValidationTest {
     void testInvalidFilm() {
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
         film.setName("");
-        film.setDescription("очень длинное описание фильма, очень длинное описание фильма, очень длинное описание фильма, очень длинное описание фильма, очень длинное описание фильма, очень длинное описание фильма, очень длинное описание фильма");
+        film.setDescription("1".repeat(201));
         film.setDuration(-1);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            ValidatorNotBeforeReleaseDate validator = new ValidatorNotBeforeReleaseDate();
-            if (!validator.isValid(film.getReleaseDate(), null)) throw new IllegalArgumentException("Дата релиза не может быть раньше 28 декабря 1895 года");
+            if (!releaseDateValidator.isValid(film.getReleaseDate(), null)) throw new IllegalArgumentException("Дата релиза не может быть раньше 28 декабря 1895 года");
             if (film.getName().isEmpty()) throw new IllegalArgumentException("Название не должно быть пустым");
             if (film.getDescription().length() > 200) throw new IllegalArgumentException("Описание не должно превышать 200 символов");
             if (film.getDuration() <= 0) throw new IllegalArgumentException("Длительность должна быть положительной");
