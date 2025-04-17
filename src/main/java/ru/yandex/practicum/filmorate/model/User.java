@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,5 +21,5 @@ public class User {
 
     @PastOrPresent
     @NotNull(message = "Дата рождения не должна быть пустой")
-    private Instant birthday;
+    private LocalDate birthday;
 }
