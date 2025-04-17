@@ -11,6 +11,6 @@ public class ValidatorNotBeforeReleaseDate implements ConstraintValidator<NotBef
 
     @Override
     public boolean isValid(LocalDate releaseDate, ConstraintValidatorContext context) {
-        return releaseDate != null && !releaseDate.isAfter(FIRST_FILM_DATE);
+        return releaseDate != null && releaseDate.isAfter(FIRST_FILM_DATE);
     }
 }
