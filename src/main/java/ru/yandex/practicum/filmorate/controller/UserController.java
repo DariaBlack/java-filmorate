@@ -31,7 +31,7 @@ public class UserController {
 
         if (!users.containsKey(user.getId())) {
             log.error("Попытка обновления несуществующего пользователя с id = {}", user.getId());
-            throw new UserNotFoundException ("Пользователь с id = " + user.getId() + " не найден");
+            throw new UserNotFoundException("Пользователь с id = " + user.getId() + " не найден");
         }
 
         setName(user);
