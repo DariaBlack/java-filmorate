@@ -1,14 +1,25 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.time.Instant;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class User {
-    Long id;
-    String email;
-    String login;
-    String name;
-    Instant birthday;
+    private Long id;
+    private String name;
+
+    @Email
+    @NotNull(message = "Email не должен быть пустым")
+    private String email;
+
+    @NotBlank(message = "нет логина или он содержит пробелы")
+    private String login;
+
+    @PastOrPresent
+    @NotNull(message = "Дата рождения не должна быть пустой")
+    private Instant birthday;
 }
