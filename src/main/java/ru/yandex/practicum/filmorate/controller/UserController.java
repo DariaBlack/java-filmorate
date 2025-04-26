@@ -47,4 +47,16 @@ public class UserController {
     public User getUserById(@PathVariable Long id) {
         return userService.getUser(id);
     }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.getUser(id).getFriends().stream()
+                .map(userService::getUser)
+                .toList();
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
 }
