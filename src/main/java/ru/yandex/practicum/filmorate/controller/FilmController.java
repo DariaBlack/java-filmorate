@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.*;
 
@@ -12,43 +12,34 @@ import java.util.*;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на создание фильма: {}", film);
-        film.setId(getNextId());
-        films.put(film.getId(), film);
-        log.info("Фильм с id = {} успешно создан: {}", film.getId(), film);
-        return film;
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        log.info("Получен запрос на обновление фильма: {}", film);
+        return filmService.updateFilm(film);
+    }
 
-        if (!films.containsKey(film.getId())) {
-            log.error("Попытка обновления несуществующего фильма с id = {}", film.getId());
-            throw new ValidationException("Фильм с id = " + film.getId() + " не найден");
-        }
-
-        films.put(film.getId(), film);
-        log.info("Фильм с id = {} успешно обновлён: {}", film.getId(), film);
-        return film;
+    @PutMapping("/{filmId}/like/{userId}")
+    public void addLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        filmService.addLike(filmId, userId);
     }
 
     @GetMapping
     public List<Film> findAll() {
-        log.info("Получен запрос на получение всех фильмов");
-        return new ArrayList<>(films.values());
+        return filmService.getAllFilms();
     }
 
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public void removeLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        filmService.removeLike(filmId, userId);
     }
 }
