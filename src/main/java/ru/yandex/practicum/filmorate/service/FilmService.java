@@ -27,6 +27,10 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
+    public Film getFilm(Long id) {
+        return filmStorage.getFilm(id);
+    }
+
     public void addLike(Long filmId, Long userId) {
         Film film = filmStorage.getFilm(filmId);
         film.getLikes().add(userId);

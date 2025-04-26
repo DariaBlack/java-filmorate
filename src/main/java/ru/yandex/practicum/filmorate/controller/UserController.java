@@ -42,4 +42,9 @@ public class UserController {
     public List<User> findAll() {
         return userService.getAllUsers();
     }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userService.getUser(id);
+    }
 }
