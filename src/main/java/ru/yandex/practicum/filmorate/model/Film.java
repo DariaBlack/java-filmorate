@@ -5,6 +5,8 @@ import jakarta.validation.constraints.*;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,4 +25,6 @@ public class Film {
 
     @Positive(message = "Длительность должна быть положительной")
     private int duration;
+
+    private Set<Long> likes = new HashSet<>();
 }

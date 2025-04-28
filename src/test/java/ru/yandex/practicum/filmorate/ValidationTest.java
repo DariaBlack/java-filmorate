@@ -1,60 +1,37 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
-import ru.yandex.practicum.filmorate.validator.ValidatorNotBeforeReleaseDate;
 
-import java.lang.annotation.Annotation;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ValidationTest {
+    private Validator validator;
     private User user;
     private Film film;
-    private ValidatorNotBeforeReleaseDate releaseDateValidator;
 
     @BeforeEach
     public void setUp() {
-        user = new User(null, null, "email@example.ru", "login", LocalDate.of(1997, 3, 10));
-        film = new Film(null, LocalDate.of(2017, 9, 14), "name of film", "description of film", 120);
-        releaseDateValidator = new ValidatorNotBeforeReleaseDate();
-        releaseDateValidator.initialize(new NotBeforeReleaseDate() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return null;
-            }
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
 
-            @Override
-            public Class<? extends jakarta.validation.Payload>[] payload() {
-                return new Class[0];
-            }
-
-            @Override
-            public Class<?>[] groups() {
-                return new Class[0];
-            }
-
-            @Override
-            public String message() {
-                return "Дата релиза не может быть раньше 28 декабря 1895 года";
-            }
-
-            @Override
-            public String value() {
-                return "1895-12-28";
-            }
-        });
+        user = new User(null, "Test User", "email@example.ru", "login", LocalDate.of(1997, 3, 10), new HashSet<>());
+        film = new Film(null, LocalDate.of(2017, 9, 14), "name of film", "description of film", 120, new HashSet<>());
     }
 
     @Test
     public void testValidUser() {
-        assertNotNull(user.getEmail(), "Email не должен быть пустым");
-        assertTrue(user.getLogin().matches("\\S+"), "Логин не должен содержать пробелов");
-        assertTrue(user.getBirthday().isBefore(LocalDate.now()) || user.getBirthday().isEqual(LocalDate.now()), "Дата рождения не должна быть из будущего");
+        Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+        assertTrue(violations.isEmpty(), "Валидация пользователя должна проходить без ошибок");
     }
 
     @Test
@@ -63,19 +40,14 @@ public class ValidationTest {
         user.setLogin(" ");
         user.setBirthday(LocalDate.of(3000, 1, 1));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            if (user.getEmail() == null) throw new IllegalArgumentException("Email не должен быть пустым");
-            if (!user.getLogin().matches("\\S+")) throw new IllegalArgumentException("Логин не должен содержать пробелы");
-            if (user.getBirthday().isAfter(LocalDate.now())) throw new IllegalArgumentException("Дата рождения не должна быть из будущего");
-        });
+        Set<jakarta.validation.ConstraintViolation<User>> violations = validator.validate(user);
+        assertFalse(violations.isEmpty(), "Пользователь должен содержать ошибки валидации");
     }
 
     @Test
     void testValidFilm() {
-        assertTrue(releaseDateValidator.isValid(film.getReleaseDate(), null), "Дата релиза не может быть раньше 28 декабря 1895 года");
-        assertFalse(film.getName().isEmpty(), "Название фильма не должно быть пустым");
-        assertTrue(film.getDescription().length() <= 200, "Описание фильма не должно превышать 200 символов");
-        assertTrue(film.getDuration() > 0, "Длительность фильма должна быть положительной");
+        Set<jakarta.validation.ConstraintViolation<Film>> violations = validator.validate(film);
+        assertTrue(violations.isEmpty(), "Валидация фильма должна проходить без ошибок");
     }
 
     @Test
@@ -85,11 +57,7 @@ public class ValidationTest {
         film.setDescription("1".repeat(201));
         film.setDuration(-1);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            if (!releaseDateValidator.isValid(film.getReleaseDate(), null)) throw new IllegalArgumentException("Дата релиза не может быть раньше 28 декабря 1895 года");
-            if (film.getName().isEmpty()) throw new IllegalArgumentException("Название не должно быть пустым");
-            if (film.getDescription().length() > 200) throw new IllegalArgumentException("Описание не должно превышать 200 символов");
-            if (film.getDuration() <= 0) throw new IllegalArgumentException("Длительность должна быть положительной");
-        });
+        Set<jakarta.validation.ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty(), "Фильм должен содержать ошибки валидации");
     }
 }
