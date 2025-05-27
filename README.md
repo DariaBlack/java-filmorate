@@ -1,7 +1,7 @@
 # java-filmorate
 
 ### Таблица
-![ER-диаграмма](https://github.com/user-attachments/assets/f9aaa659-28ac-47f9-bc21-0e6f72bddd25)
+![ER-диаграмма](https://github.com/user-attachments/assets/e2d46323-a8dd-4cdf-bdf2-1ec016316e0b)
 
 1. users: информация о пользователях
 2. friends: дружественные связи между пользователями
