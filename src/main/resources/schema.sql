@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS films (
     film_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     description VARCHAR(255),
-    releaseDate DATE,
+    release_date DATE,
     duration INT,
     rating_id INT,
     FOREIGN KEY (rating_id) REFERENCES rating_mpaa(rating_id)
