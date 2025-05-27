@@ -26,4 +26,6 @@ public class User {
     private LocalDate birthday;
 
     private Set<Long> friends = new HashSet<>();
+
+    StatusFriendship statusFriendship = StatusFriendship.PENDING;
 }
