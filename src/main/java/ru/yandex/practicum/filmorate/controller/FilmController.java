@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -61,5 +63,11 @@ public class FilmController {
     public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
         log.info("Получен запрос на получение списка популярных фильмов");
         return filmService.getTopFilms(count);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleEntityNotFoundException(EntityNotFoundException e) {
+        return Map.of("error", e.getMessage());
     }
 }

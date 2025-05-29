@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
 
@@ -20,6 +21,10 @@ public class MpaService {
     }
 
     public Mpa getMpaById(int id) {
-        return mpaStorage.getMpaById(id);
+        Mpa mpa = mpaStorage.getMpaById(id);
+        if (mpa == null) {
+            throw new EntityNotFoundException("MPA рейтинг с id " + id + " не найден");
+        }
+        return mpa;
     }
 }
