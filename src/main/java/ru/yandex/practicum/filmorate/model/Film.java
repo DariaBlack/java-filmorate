@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
@@ -24,6 +25,7 @@ public class Film {
     private String description;
 
     @NotBeforeReleaseDate(value = "1895-12-28", message = "Дата релиза не может быть раньше 28 декабря 1895 года")
+    @NotNull(message = "Дата релиза не может быть пустой")
     private LocalDate releaseDate;
 
     private Integer duration;

@@ -49,7 +49,7 @@ public class UserDbStorage implements UserStorage {
     public User getUser(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
                 User user = new User();
                 user.setId(rs.getLong("user_id"));
                 user.setName(rs.getString("name"));
@@ -57,9 +57,9 @@ public class UserDbStorage implements UserStorage {
                 user.setLogin(rs.getString("login"));
                 user.setBirthday(rs.getDate("birthday").toLocalDate());
                 return user;
-            }, id);
+            });
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
+            return null; // Вместо выброса исключения возвращаем null
         }
     }
 

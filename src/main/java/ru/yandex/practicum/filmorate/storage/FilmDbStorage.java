@@ -25,8 +25,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        if (!ratingExists(film.getMpa().getId())) {
-            throw new EntityNotFoundException("MPA рейтинг с id " + film.getMpa().getId() + " не найден");
+        if (film.getMpa() == null || !ratingExists(film.getMpa().getId())) {
+            throw new EntityNotFoundException("MPA рейтинг с id " + (film.getMpa() != null ? film.getMpa().getId() : "null") + " не найден");
         }
 
         String sql = "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (?, ?, ?, ?, ?)";
