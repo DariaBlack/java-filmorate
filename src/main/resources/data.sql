@@ -1,7 +1,7 @@
+DELETE FROM film_genre;
 DELETE FROM films WHERE rating_id IN (SELECT rating_id FROM rating_mpaa);
 DELETE FROM rating_mpaa;
 DELETE FROM genre;
-DELETE FROM film_genre;
 DELETE FROM likes;
 
 INSERT INTO rating_mpaa (rating_id, name) VALUES

@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
@@ -18,6 +20,9 @@ import java.util.*;
 @Slf4j
 public class Film {
     private Long id;
+
+    @NotBlank(message = "Название фильма не может быть пустым")
+    @Size(max = 200, message = "Название фильма не может быть длиннее 200 символов")
     private String name;
     private String description;
 
