@@ -58,8 +58,7 @@ public class FilmService {
         if (user == null) {
             throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
         }
-        film.getLikes().add(userId);
-        filmStorage.updateFilm(film);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -68,15 +67,11 @@ public class FilmService {
         if (user == null) {
             throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
         }
-        film.getLikes().remove(userId);
-        filmStorage.updateFilm(film);
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getTopFilms(int count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getPopularFilms(count);
     }
 
     private void validateFilmData(Film film) {

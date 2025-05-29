@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,17 @@ public class Film {
     @NotBlank(message = "Название фильма не может быть пустым")
     @Size(max = 200, message = "Название фильма не может быть длиннее 200 символов")
     private String name;
+
+    @NotBlank(message = "Описание не может быть пустым")
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
 
     @NotBeforeReleaseDate(value = "1895-12-28", message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     @NotNull(message = "Дата релиза не может быть пустой")
     private LocalDate releaseDate;
 
+    @Positive(message = "Продолжительность фильма должна быть положительным числом")
+    @NotNull(message = "Продолжительность фильма не может быть пустой")
     private Integer duration;
     private final Set<Long> likes = new HashSet<>();
     private Mpa mpa;
