@@ -82,15 +82,17 @@ public class FilmDbStorage implements FilmStorage {
                 return f;
             }, id);
 
-            List<Genre> genres = jdbcTemplate.query(
-                    "SELECT g.genre_id, g.name FROM film_genre fg " +
-                            "JOIN genre g ON fg.genre_id = g.genre_id " +
-                            "WHERE fg.film_id = ? " +
-                            "ORDER BY g.genre_id",
-                    (rs, rowNum) -> new Genre(rs.getInt("genre_id"), rs.getString("name")),
-                    id
-            );
-            film.setGenres(genres);
+            if (film != null) {
+                List<Genre> genres = jdbcTemplate.query(
+                        "SELECT g.genre_id, g.name FROM film_genre fg " +
+                                "JOIN genre g ON fg.genre_id = g.genre_id " +
+                                "WHERE fg.film_id = ? " +
+                                "ORDER BY g.genre_id",
+                        (rs, rowNum) -> new Genre(rs.getInt("genre_id"), rs.getString("name")),
+                        id
+                );
+                film.setGenres(genres);
+            }
 
             return film;
         } catch (EmptyResultDataAccessException e) {
