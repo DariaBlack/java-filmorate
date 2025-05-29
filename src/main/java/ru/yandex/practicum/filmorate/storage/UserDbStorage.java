@@ -15,7 +15,6 @@ import java.util.List;
 
 @Repository
 public class UserDbStorage implements UserStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -49,15 +48,7 @@ public class UserDbStorage implements UserStorage {
     public User getUser(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
-                User user = new User();
-                user.setId(rs.getLong("user_id"));
-                user.setName(rs.getString("name"));
-                user.setEmail(rs.getString("email"));
-                user.setLogin(rs.getString("login"));
-                user.setBirthday(rs.getDate("birthday").toLocalDate());
-                return user;
-            });
+            return jdbcTemplate.queryForObject(sql, EntityMapper::mapRowToUser, id);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
         }
@@ -66,15 +57,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getAllUsers() {
         String sql = "SELECT * FROM users";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getLong("user_id"));
-            user.setName(rs.getString("name"));
-            user.setEmail(rs.getString("email"));
-            user.setLogin(rs.getString("login"));
-            user.setBirthday(rs.getDate("birthday").toLocalDate());
-            return user;
-        });
+        return jdbcTemplate.query(sql, EntityMapper::mapRowToUser);
     }
 
     @Override

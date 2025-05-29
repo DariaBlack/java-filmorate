@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     public GenreDbStorage(JdbcTemplate jdbcTemplate) {
@@ -21,24 +20,14 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> getAllGenres() {
         String sql = "SELECT * FROM genre";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            Genre genre = new Genre();
-            genre.setId(rs.getInt("genre_id"));
-            genre.setName(rs.getString("name"));
-            return genre;
-        });
+        return jdbcTemplate.query(sql, EntityMapper::mapRowToGenre);
     }
 
     @Override
     public Genre getGenreById(int id) {
         String sql = "SELECT * FROM genre WHERE genre_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-                Genre genre = new Genre();
-                genre.setId(rs.getInt("genre_id"));
-                genre.setName(rs.getString("name"));
-                return genre;
-            }, id);
+            return jdbcTemplate.queryForObject(sql, EntityMapper::mapRowToGenre, id);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException("Жанр с id " + id + " не найден");
         }
