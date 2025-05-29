@@ -100,7 +100,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAllFilms() {
-        String sql = "SELECT f.*, r.name as rating_name FROM films f JOIN rating_mpaa r ON f.rating_id = r.rating_id";
+        String sql = "SELECT f.*, r.name as rating_name FROM films f " +
+                "JOIN rating_mpaa r ON f.rating_id = r.rating_id " +
+                "ORDER BY f.film_id";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> {
             Film film = new Film();
             film.setId(rs.getLong("film_id"));
