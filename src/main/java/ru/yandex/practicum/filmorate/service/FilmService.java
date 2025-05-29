@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.util.HashSet;
 import java.util.List;
@@ -44,11 +45,8 @@ public class FilmService {
     }
 
     public Film getFilm(Long id) {
-        Film film = filmStorage.getFilm(id);
-        if (film == null) {
-            throw new EntityNotFoundException("Фильм с id " + id + " не найден");
-        }
-        return film;
+        return filmStorage.getFilm(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ERROR_FILM_NOT_FOUND, id)));
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -90,9 +88,7 @@ public class FilmService {
 
     private void validateFilmAndUser(Long filmId, Long userId) {
         getFilm(filmId); // Проверяем существование фильма
-        User user = userStorage.getUser(userId);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        userStorage.getUser(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id " + userId + " не найден"));
     }
 }

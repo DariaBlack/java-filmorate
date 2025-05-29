@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.util.Constants;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserDbStorage implements UserStorage {
@@ -41,15 +42,17 @@ public class UserDbStorage implements UserStorage {
     public User updateUser(User user) {
         jdbcTemplate.update(Constants.SQL_UPDATE_USER,
                 user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
-        return getUser(user.getId());
+        return getUser(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found after update"));
     }
 
     @Override
-    public User getUser(Long id) {
+    public Optional<User> getUser(Long id) {
         try {
-            return jdbcTemplate.queryForObject(Constants.SQL_SELECT_USER, EntityMapper::mapRowToUser, id);
+            User user = jdbcTemplate.queryForObject(Constants.SQL_SELECT_USER, EntityMapper::mapRowToUser, id);
+            return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format(Constants.ERROR_USER_NOT_FOUND, id));
+            return Optional.empty();
         }
     }
 

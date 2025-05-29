@@ -16,6 +16,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class FilmDbStorage implements FilmStorage {
@@ -47,7 +48,7 @@ public class FilmDbStorage implements FilmStorage {
             addGenresToFilm(film.getId(), film.getGenres());
         }
 
-        return getFilm(film.getId());
+        return getFilm(film.getId()).orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ERROR_FILM_NOT_FOUND, film.getId())));
     }
 
     @Override
@@ -61,20 +62,20 @@ public class FilmDbStorage implements FilmStorage {
             addGenresToFilm(film.getId(), film.getGenres());
         }
 
-        return getFilm(film.getId());
+        return getFilm(film.getId()).orElseThrow(() -> new EntityNotFoundException(String.format(Constants.ERROR_FILM_NOT_FOUND, film.getId())));
     }
 
     @Override
-    public Film getFilm(Long id) {
+    public Optional<Film> getFilm(Long id) {
         try {
             Film film = jdbcTemplate.queryForObject(Constants.SQL_SELECT_FILM, EntityMapper::mapRowToFilm, id);
             if (film != null) {
                 List<Genre> genres = jdbcTemplate.query(Constants.SQL_SELECT_FILM_GENRES, EntityMapper::mapRowToGenre, id);
                 film.setGenres(genres);
             }
-            return film;
+            return Optional.ofNullable(film);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(String.format(Constants.ERROR_FILM_NOT_FOUND, id));
+            return Optional.empty();
         }
     }
 

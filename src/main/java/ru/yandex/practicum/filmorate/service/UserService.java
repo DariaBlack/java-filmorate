@@ -40,11 +40,8 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        User user = userStorage.getUser(id);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
-        }
-        return user;
+        return userStorage.getUser(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id " + id + " не найден"));
     }
 
     public void addFriend(Long userId, Long friendId) {
