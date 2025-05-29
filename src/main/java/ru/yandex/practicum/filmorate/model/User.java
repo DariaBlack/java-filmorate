@@ -19,7 +19,7 @@ import java.util.Set;
 @EqualsAndHashCode()
 public class User {
     private Long id;
-    @Email(message = "E-mail должен содержать '@'.")
+    @Email(message = "E-mail должен содержать символ '@'.")
     private String email;
     private String login;
     private String name;

@@ -30,40 +30,33 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        return userStorage.getUser(id);
+        User user = userStorage.getUser(id);
+        if (user == null) {
+            throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
+        }
+        return user;
     }
 
     public void addFriend(Long userId, Long friendId) {
-        User user = userStorage.getUser(userId);
-        User friend = userStorage.getUser(friendId);
-
-        if (user == null || friend == null) {
-            throw new EntityNotFoundException("Пользователь не найден");
-        }
-
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = userStorage.getUser(userId);
-
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь не найден");
-        }
-
+        User user = getUser(userId);
+        User friend = getUser(friendId);
         userStorage.removeFriend(userId, friendId);
     }
 
+    public List<User> getFriends(Long userId) {
+        User user = getUser(userId);
+        return userStorage.getFriends(userId);
+    }
+
     public List<User> getCommonFriends(Long userId, Long otherUserId) {
-        User user = userStorage.getUser(userId);
-        User otherUser = userStorage.getUser(otherUserId);
-
-        Set<Long> commonFriendsIds = user.getFriends().stream()
-                .filter(otherUser.getFriends()::contains)
-                .collect(Collectors.toSet());
-
-        return commonFriendsIds.stream()
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
+        User user = getUser(userId);
+        User otherUser = getUser(otherUserId);
+        return userStorage.getCommonFriends(userId, otherUserId);
     }
 }
