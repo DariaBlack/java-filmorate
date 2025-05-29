@@ -20,6 +20,9 @@ public class UserService {
     }
 
     public User updateUser(User user) {
+        if (!userStorage.userExists(user.getId())) {
+            throw new EntityNotFoundException("Пользователь с id " + user.getId() + " не найден");
+        }
         return userStorage.updateUser(user);
     }
 

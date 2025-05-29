@@ -23,7 +23,7 @@ public class Film {
     private String name;
     private String description;
 
-    @NotBeforeReleaseDate("1895-12-28")
+    @NotBeforeReleaseDate(value = "1895-12-28", message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
 
     private Integer duration;

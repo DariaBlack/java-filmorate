@@ -20,7 +20,7 @@ import java.util.Set;
 public class User {
     private Long id;
 
-    @Email(message = "E-mail должен содержать символ '@'.", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @Email(message = "E-mail должен содержать символ '@'.")
     private String email;
     private String login;
     private String name;

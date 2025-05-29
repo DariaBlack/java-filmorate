@@ -1,9 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL,
     login VARCHAR(255) NOT NULL,
-    birthday DATE
+    name VARCHAR(255),
+    birthday DATE,
+    CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS rating_mpaa (

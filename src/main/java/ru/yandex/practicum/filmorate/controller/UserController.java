@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -69,11 +71,5 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable @Positive Long id, @PathVariable @Positive Long otherId) {
         log.info("Получен запрос на получение общего списка друзей пользователей с id: {} и {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleEntityNotFoundException(EntityNotFoundException e) {
-        return Map.of("error", e.getMessage());
     }
 }

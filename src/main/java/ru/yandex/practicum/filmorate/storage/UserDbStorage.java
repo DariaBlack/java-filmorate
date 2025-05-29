@@ -25,13 +25,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        String sql = "INSERT INTO users (name, email, login, birthday) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getLogin());
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"user_id"});
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getLogin());
+            ps.setString(3, user.getName());
             ps.setDate(4, Date.valueOf(user.getBirthday()));
             return ps;
         }, keyHolder);
@@ -121,5 +121,12 @@ public class UserDbStorage implements UserStorage {
             user.setBirthday(rs.getDate("birthday").toLocalDate());
             return user;
         }, userId, otherUserId);
+    }
+
+    @Override
+    public boolean userExists(Long id) {
+        String sql = "SELECT COUNT(*) FROM users WHERE user_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+        return count != null && count > 0;
     }
 }

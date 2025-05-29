@@ -9,7 +9,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,13 +88,17 @@ public class FilmService {
             }
         }
         if (film.getGenres() != null) {
+            Set<Genre> uniqueGenres = new HashSet<>();
             for (Genre genre : film.getGenres()) {
                 try {
-                    genreService.getGenreById(genre.getId());
+                    Genre validatedGenre = genreService.getGenreById(genre.getId());
+                    uniqueGenres.add(validatedGenre);
                 } catch (EntityNotFoundException e) {
                     throw new EntityNotFoundException("Жанр с id " + genre.getId() + " не найден. Пожалуйста, выберите существующий жанр.");
                 }
             }
+            film.getGenres().clear();
+            film.getGenres().addAll(uniqueGenres);
         }
     }
 }
