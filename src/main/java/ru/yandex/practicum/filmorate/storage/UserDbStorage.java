@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 
@@ -47,15 +49,19 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User getUser(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getLong("user_id"));
-            user.setName(rs.getString("name"));
-            user.setEmail(rs.getString("email"));
-            user.setLogin(rs.getString("login"));
-            user.setBirthday(rs.getDate("birthday").toLocalDate());
-            return user;
-        }, id);
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                User user = new User();
+                user.setId(rs.getLong("user_id"));
+                user.setName(rs.getString("name"));
+                user.setEmail(rs.getString("email"));
+                user.setLogin(rs.getString("login"));
+                user.setBirthday(rs.getDate("birthday").toLocalDate());
+                return user;
+            }, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
+        }
     }
 
     @Override

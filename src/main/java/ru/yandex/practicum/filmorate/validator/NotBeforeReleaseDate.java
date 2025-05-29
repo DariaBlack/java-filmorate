@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NotBeforeReleaseDate {
-    String message() default "Дата релиза не может быть раньше 28 декабря 1895 года";
+    String message() default "Дата релиза не может быть раньше {value}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

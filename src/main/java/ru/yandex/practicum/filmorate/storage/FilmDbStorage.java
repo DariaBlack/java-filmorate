@@ -25,6 +25,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
+        if (!ratingExists(film.getMpa().getId())) {
+            throw new EntityNotFoundException("MPA рейтинг с id " + film.getMpa().getId() + " не найден");
+        }
+
         String sql = "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -77,5 +81,11 @@ public class FilmDbStorage implements FilmStorage {
             film.setDuration(rs.getInt("duration"));
             return film;
         });
+    }
+
+    private boolean ratingExists(int ratingId) {
+        String sql = "SELECT COUNT(*) FROM rating_mpaa WHERE rating_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, ratingId);
+        return count != null && count > 0;
     }
 }

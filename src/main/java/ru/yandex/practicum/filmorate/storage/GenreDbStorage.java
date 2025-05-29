@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.interfaces.GenreStorage;
 
@@ -30,11 +32,15 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public Genre getGenreById(int id) {
         String sql = "SELECT * FROM genre WHERE genre_id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            Genre genre = new Genre();
-            genre.setId(rs.getInt("genre_id"));
-            genre.setName(rs.getString("name"));
-            return genre;
-        }, id);
+        try {
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Genre genre = new Genre();
+                genre.setId(rs.getInt("genre_id"));
+                genre.setName(rs.getString("name"));
+                return genre;
+            }, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("Жанр с id " + id + " не найден");
+        }
     }
 }
