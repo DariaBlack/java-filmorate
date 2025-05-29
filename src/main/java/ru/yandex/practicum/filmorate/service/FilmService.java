@@ -52,20 +52,12 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        Film film = getFilm(filmId);
-        User user = userStorage.getUser(userId);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        validateFilmAndUser(filmId, userId);
         filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        Film film = getFilm(filmId);
-        User user = userStorage.getUser(userId);
-        if (user == null) {
-            throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
-        }
+        validateFilmAndUser(filmId, userId);
         filmStorage.removeLike(filmId, userId);
     }
 
@@ -93,6 +85,14 @@ public class FilmService {
             }
             film.getGenres().clear();
             film.getGenres().addAll(uniqueGenres);
+        }
+    }
+
+    private void validateFilmAndUser(Long filmId, Long userId) {
+        getFilm(filmId); // Проверяем существование фильма
+        User user = userStorage.getUser(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("Пользователь с id " + userId + " не найден");
         }
     }
 }
