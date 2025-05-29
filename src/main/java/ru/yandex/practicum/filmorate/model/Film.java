@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Builder
 @AllArgsConstructor
@@ -31,7 +28,13 @@ public class Film {
     private Integer duration;
     private final Set<Long> likes = new HashSet<>();
     private Mpa mpa;
-    private final Set<Genre> genres = new HashSet<>();
+
+    @Builder.Default
+    private List<Genre> genres = new ArrayList<>();
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres != null ? new ArrayList<>(genres) : new ArrayList<>();
+    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

@@ -3,8 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL,
     login VARCHAR(255) NOT NULL,
     name VARCHAR(255),
-    birthday DATE,
-    CONSTRAINT users_pk PRIMARY KEY (user_id)
+    birthday DATE
 );
 
 CREATE TABLE IF NOT EXISTS rating_mpaa (
