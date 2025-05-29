@@ -1,34 +1,44 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
-import jakarta.validation.constraints.*;
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Slf4j
 public class Film {
     private Long id;
+    private String name;
+    private String description;
 
     @NotBeforeReleaseDate("1895-12-28")
     private LocalDate releaseDate;
 
-    @NotEmpty(message = "Название не должно быть пустым")
-    private String name;
+    private Integer duration;
+    private final Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+    private final Set<Genre> genres = new HashSet<>();
 
-    @Size(max = 200, message = "Длина описания не должна превышать 200 символов")
-    private String description;
-
-    @Positive(message = "Длительность должна быть положительной")
-    private int duration;
-
-    private Set<Long> likes = new HashSet<>();
-
-    Set<FilmGenre> genres;
-
-    RatingMpaa ratingMpaa;
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("film_id", id);
+        values.put("name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate.toString());
+        values.put("duration", duration);
+        values.put("rating_id", mpa == null ? null : mpa.getId());
+        return values;
+    }
 }
