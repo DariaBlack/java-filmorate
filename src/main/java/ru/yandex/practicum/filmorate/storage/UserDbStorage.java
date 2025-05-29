@@ -24,7 +24,7 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         String sql = "INSERT INTO users (name, email, login, birthday) VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, user.getName(), user.getEmail(), user.getLogin(), user.getBirthday());
-        Long id = jdbcTemplate.queryForObject("SELECT IDENTITY()", Long.class);
+        Long id = jdbcTemplate.queryForObject("SELECT SCOPE_IDENTITY()", Long.class);
         user.setId(id);
         return user;
     }
