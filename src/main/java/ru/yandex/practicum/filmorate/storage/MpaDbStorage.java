@@ -6,11 +6,13 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.MpaStorage;
+import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.util.List;
 
 @Repository
 public class MpaDbStorage implements MpaStorage {
+
     private final JdbcTemplate jdbcTemplate;
 
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
@@ -19,17 +21,15 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> getAllMpa() {
-        String sql = "SELECT * FROM rating_mpaa";
-        return jdbcTemplate.query(sql, EntityMapper::mapRowToMpa);
+        return jdbcTemplate.query(Constants.SQL_SELECT_ALL_MPA, EntityMapper::mapRowToMpa);
     }
 
     @Override
     public Mpa getMpaById(int id) {
-        String sql = "SELECT * FROM rating_mpaa WHERE rating_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, EntityMapper::mapRowToMpa, id);
+            return jdbcTemplate.queryForObject(Constants.SQL_SELECT_MPA, EntityMapper::mapRowToMpa, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("MPA рейтинг с id " + id + " не найден");
+            throw new EntityNotFoundException(String.format(Constants.ERROR_MPA_NOT_FOUND, id));
         }
     }
 }

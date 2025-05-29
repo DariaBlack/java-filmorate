@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
+import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,10 +24,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"user_id"});
+            PreparedStatement ps = connection.prepareStatement(Constants.SQL_INSERT_USER, new String[]{"user_id"});
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getLogin());
             ps.setString(3, user.getName());
@@ -39,25 +39,23 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User updateUser(User user) {
-        String sql = "UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE user_id = ?";
-        jdbcTemplate.update(sql, user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
-        return user;
+        jdbcTemplate.update(Constants.SQL_UPDATE_USER,
+                user.getName(), user.getEmail(), user.getLogin(), user.getBirthday(), user.getId());
+        return getUser(user.getId());
     }
 
     @Override
     public User getUser(Long id) {
-        String sql = "SELECT * FROM users WHERE user_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, EntityMapper::mapRowToUser, id);
+            return jdbcTemplate.queryForObject(Constants.SQL_SELECT_USER, EntityMapper::mapRowToUser, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("Пользователь с id " + id + " не найден");
+            throw new EntityNotFoundException(String.format(Constants.ERROR_USER_NOT_FOUND, id));
         }
     }
 
     @Override
     public List<User> getAllUsers() {
-        String sql = "SELECT * FROM users";
-        return jdbcTemplate.query(sql, EntityMapper::mapRowToUser);
+        return jdbcTemplate.query(Constants.SQL_SELECT_ALL_USERS, EntityMapper::mapRowToUser);
     }
 
     @Override

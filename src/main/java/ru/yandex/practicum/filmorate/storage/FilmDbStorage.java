@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -27,13 +28,12 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film addFilm(Film film) {
         if (film.getMpa() == null || !ratingExists(film.getMpa().getId())) {
-            throw new EntityNotFoundException("MPA рейтинг с id " + (film.getMpa() != null ? film.getMpa().getId() : "null") + " не найден");
+            throw new EntityNotFoundException(String.format(Constants.ERROR_MPA_NOT_FOUND, film.getMpa() != null ? film.getMpa().getId() : "null"));
         }
 
-        String sql = "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(Constants.SQL_INSERT_FILM, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, film.getName());
             ps.setString(2, film.getDescription());
             ps.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -52,8 +52,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE film_id = ?";
-        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getMpa().getId(), film.getId());
+        jdbcTemplate.update(Constants.SQL_UPDATE_FILM,
+                film.getName(), film.getDescription(), film.getReleaseDate(),
+                film.getDuration(), film.getMpa().getId(), film.getId());
 
         jdbcTemplate.update("DELETE FROM film_genre WHERE film_id = ?", film.getId());
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
@@ -65,42 +66,24 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Long id) {
-        String sql = "SELECT f.*, r.name as rating_name FROM films f JOIN rating_mpaa r ON f.rating_id = r.rating_id WHERE f.film_id = ?";
         try {
-            Film film = jdbcTemplate.queryForObject(sql, EntityMapper::mapRowToFilm, id);
+            Film film = jdbcTemplate.queryForObject(Constants.SQL_SELECT_FILM, EntityMapper::mapRowToFilm, id);
             if (film != null) {
-                List<Genre> genres = jdbcTemplate.query(
-                        "SELECT g.genre_id, g.name FROM film_genre fg " +
-                                "JOIN genre g ON fg.genre_id = g.genre_id " +
-                                "WHERE fg.film_id = ? " +
-                                "ORDER BY g.genre_id",
-                        EntityMapper::mapRowToGenre,
-                        id
-                );
+                List<Genre> genres = jdbcTemplate.query(Constants.SQL_SELECT_FILM_GENRES, EntityMapper::mapRowToGenre, id);
                 film.setGenres(genres);
             }
             return film;
         } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException("Фильм с id " + id + " не найден");
+            throw new EntityNotFoundException(String.format(Constants.ERROR_FILM_NOT_FOUND, id));
         }
     }
 
     @Override
     public List<Film> getAllFilms() {
-        String sql = "SELECT f.*, r.name as rating_name FROM films f " +
-                "JOIN rating_mpaa r ON f.rating_id = r.rating_id " +
-                "ORDER BY f.film_id";
-        List<Film> films = jdbcTemplate.query(sql, EntityMapper::mapRowToFilm);
+        List<Film> films = jdbcTemplate.query(Constants.SQL_SELECT_ALL_FILMS, EntityMapper::mapRowToFilm);
 
         for (Film film : films) {
-            List<Genre> genres = jdbcTemplate.query(
-                    "SELECT g.genre_id, g.name FROM film_genre fg " +
-                            "JOIN genre g ON fg.genre_id = g.genre_id " +
-                            "WHERE fg.film_id = ? " +
-                            "ORDER BY g.genre_id",
-                    EntityMapper::mapRowToGenre,
-                    film.getId()
-            );
+            List<Genre> genres = jdbcTemplate.query(Constants.SQL_SELECT_FILM_GENRES, EntityMapper::mapRowToGenre, film.getId());
             film.setGenres(genres);
         }
 
