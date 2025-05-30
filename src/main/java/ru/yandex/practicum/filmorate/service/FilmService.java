@@ -9,9 +9,8 @@ import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.util.Constants;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -70,18 +69,19 @@ public class FilmService {
                 throw new EntityNotFoundException("MPA рейтинг с id " + film.getMpa().getId() + " не найден. Пожалуйста, выберите существующий MPA рейтинг.");
             }
         }
-        if (film.getGenres() != null) {
-            Set<Genre> uniqueGenres = new HashSet<>();
-            for (Genre genre : film.getGenres()) {
-                try {
-                    Genre validatedGenre = genreService.getGenreById(genre.getId());
-                    uniqueGenres.add(validatedGenre);
-                } catch (EntityNotFoundException e) {
-                    throw new EntityNotFoundException("Жанр с id " + genre.getId() + " не найден. Пожалуйста, выберите существующий жанр.");
-                }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            List<Integer> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            List<Genre> validGenres = genreService.getGenresByIds(genreIds);
+
+            if (validGenres.size() != genreIds.size()) {
+                throw new EntityNotFoundException("Один или несколько жанров не найдены. Пожалуйста, выберите существующие жанры.");
             }
-            film.getGenres().clear();
-            film.getGenres().addAll(uniqueGenres);
+
+            film.setGenres(validGenres);
         }
     }
 

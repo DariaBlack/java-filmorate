@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.interfaces.UserStorage;
 import ru.yandex.practicum.filmorate.util.Constants;
@@ -18,9 +19,11 @@ import java.util.Optional;
 @Repository
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserMapper userMapper;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, UserMapper userMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> getUser(Long id) {
         try {
-            User user = jdbcTemplate.queryForObject(Constants.SQL_SELECT_USER, EntityMapper::mapRowToUser, id);
+            User user = jdbcTemplate.queryForObject(Constants.SQL_SELECT_USER, userMapper, id);
             return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -58,7 +61,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        return jdbcTemplate.query(Constants.SQL_SELECT_ALL_USERS, EntityMapper::mapRowToUser);
+        return jdbcTemplate.query(Constants.SQL_SELECT_ALL_USERS, userMapper);
     }
 
     @Override
@@ -78,15 +81,7 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT u.* FROM users u " +
                 "JOIN friends f ON u.user_id = f.friend_id " +
                 "WHERE f.user_id = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getLong("user_id"));
-            user.setName(rs.getString("name"));
-            user.setEmail(rs.getString("email"));
-            user.setLogin(rs.getString("login"));
-            user.setBirthday(rs.getDate("birthday").toLocalDate());
-            return user;
-        }, userId);
+        return jdbcTemplate.query(sql, userMapper, userId);
     }
 
     @Override
@@ -95,15 +90,7 @@ public class UserDbStorage implements UserStorage {
                 "JOIN friends f1 ON u.user_id = f1.friend_id " +
                 "JOIN friends f2 ON u.user_id = f2.friend_id " +
                 "WHERE f1.user_id = ? AND f2.user_id = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setId(rs.getLong("user_id"));
-            user.setName(rs.getString("name"));
-            user.setEmail(rs.getString("email"));
-            user.setLogin(rs.getString("login"));
-            user.setBirthday(rs.getDate("birthday").toLocalDate());
-            return user;
-        }, userId, otherUserId);
+        return jdbcTemplate.query(sql, userMapper, userId, otherUserId);
     }
 
     @Override
