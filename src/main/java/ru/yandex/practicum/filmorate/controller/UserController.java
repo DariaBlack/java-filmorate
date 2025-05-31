@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid  @RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user);
         return userService.addUser(user);
     }
@@ -59,15 +59,13 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable @Positive Long id) {
-        log.info("Получен запрос на получение списка друзей");
-        return userService.getUser(id).getFriends().stream()
-                .map(userService::getUser)
-                .toList();
+        log.info("Получен запрос на получение списка друзей пользователя с id: {}", id);
+        return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable @Positive Long id, @PathVariable @Positive Long otherId) {
-        log.info("Получен запрос на получение общего списка друзей}");
+        log.info("Получен запрос на получение общего списка друзей пользователей с id: {} и {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
     }
 }

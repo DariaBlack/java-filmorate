@@ -1,30 +1,60 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-import jakarta.validation.constraints.*;
+import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.validator.NotBeforeReleaseDate;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Slf4j
 public class Film {
     private Long id;
 
-    @NotBeforeReleaseDate("1895-12-28")
-    private LocalDate releaseDate;
-
-    @NotEmpty(message = "Название не должно быть пустым")
+    @NotBlank(message = "Название фильма не может быть пустым")
+    @Size(max = 200, message = "Название фильма не может быть длиннее 200 символов")
     private String name;
 
-    @Size(max = 200, message = "Длина описания не должна превышать 200 символов")
+    @NotBlank(message = "Описание не может быть пустым")
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
     private String description;
 
-    @Positive(message = "Длительность должна быть положительной")
-    private int duration;
+    @NotBeforeReleaseDate(value = "1895-12-28", message = "Дата релиза не может быть раньше 28 декабря 1895 года")
+    @NotNull(message = "Дата релиза не может быть пустой")
+    private LocalDate releaseDate;
 
-    private Set<Long> likes = new HashSet<>();
+    @Positive(message = "Продолжительность фильма должна быть положительным числом")
+    @NotNull(message = "Продолжительность фильма не может быть пустой")
+    private Integer duration;
+    private final Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+
+    @Builder.Default
+    private List<Genre> genres = new ArrayList<>();
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres != null ? new ArrayList<>(genres) : new ArrayList<>();
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("film_id", id);
+        values.put("name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate.toString());
+        values.put("duration", duration);
+        values.put("rating_id", mpa == null ? null : mpa.getId());
+        return values;
+    }
 }
